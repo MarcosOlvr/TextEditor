@@ -24,7 +24,9 @@ namespace TextEditor.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Docs.Include(d => d.User);
+            var applicationDbContext = from c in _context.Docs select c;
+
+            applicationDbContext = applicationDbContext.Where(x => x.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier));
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -43,7 +45,7 @@ namespace TextEditor.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", doc.UserId);
+            
             return View(doc);
         }
 
